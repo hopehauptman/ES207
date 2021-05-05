@@ -1,28 +1,18 @@
-#Generic functions that calculate the MAE, RMSE and R2
+#Generic functions that calculate the MAE, RMSE, R2, and Pbias
+#df is the dataframe containing the training data
+#original is the observational dependent variable
+#modeleva is the model evaluated 
 
-#y is for the model-fitted predicted values and x is for the observed actual values.
-
-#Function for mean absolute error
-MAE = function(x, y){
-  mean(abs(x - y))
+library(modelr)
+model.test <- function(df, original, modeleva){    
+  stopifnot(is.data.frame(df))
+  original <- enquo(original)
+  modeltest <- df %>% 
+  spread_predictions(pred =  modeleva) %>% 
+  mutate(d =!!original-pred, y=!!original)
+  mae = mean(abs(modeltest$d))
+  rmse = sqrt(mean((modeltest$d)^2))
+  R2 = 1-(sum((modeltest$d)^2)/sum((modeltest$y-mean(modeltest$y))^2))
+  Pbias = 100 * sum(-(modeltest$d))/sum(modeltest$y)
+  cat(" MAE:", mae, "\n", "RMSE:", rmse, "\n", "R-squared:", R2, "\n", "Pbias:", Pbias)
 }
-
-#Function for root mean square error
-RMSE = function(x, y){
-  sqrt(mean((x - y)^2))
-}
-
-#function for R^2
-R2 <- function(x,y) {
-  cor(x, y)^2
-  }
-
-#This is a function to calculate all of the above
-summary_stat_mod <- function(x , y)  {
-  ss1 <- mean(abs(x - y))
-  ss2 <- sqrt(mean((x - y)^2))
-  ss3 <- cor(x, y)^2
-  return(c(MAE=ss1, RMSE=ss2, R2=ss3))
-}
-
-summary_stat_mod(data)
