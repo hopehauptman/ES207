@@ -3,7 +3,10 @@
 #original is the observational dependent variable
 #modeleva is the model evaluated 
 
+library(dplyr)
+library(rlang) #packages for passing column names as function arguments
 library(modelr)
+
 model.test <- function(df, original, modeleva){    
   stopifnot(is.data.frame(df))
   original <- enquo(original)
